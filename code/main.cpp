@@ -24,6 +24,9 @@ int main() {
 
   std::vector<Particle> particle_v{};
 
+  gStyle->SetOptStat(112210);
+  gStyle->SetOptFit(111);
+
   TH1F* hPhi = new TH1F("hPhi", "Phi Distribution", 100, 0., 2 * M_PI);
   TH1F* hTheta = new TH1F("hTheta", "Theta Distribution", 100, 0., M_PI);
   TH1F* hP = new TH1F("hP", "Momentum Distribution", 1000, 0, 7);
@@ -117,36 +120,39 @@ int main() {
     }
   }
 
-  TCanvas *cPT =
-      new TCanvas("cPT", "Particle Types Distribution", 100, 100, 1100, 700);
+  TCanvas *cPT = new TCanvas("cPT", "Particle Types Distribution", 100, 100, 1100, 700);
+  
+  {
+    hPT->Draw();
+  }
 
-  hPT->Draw();
+  TCanvas *cAngles = new TCanvas("cAngles", "Angles Distribution", 200, 100, 1100, 700);
 
-  TCanvas *cAngles =
-      new TCanvas("cAngles", "Angles Distribution", 200, 100, 1100, 700);
-  cAngles->Divide(1, 2);
+  {
+    cAngles->Divide(1, 2);
 
-  cAngles->cd(1);
-  hPhi->Fit("pol0");
-  hPhi->Draw();
+    cAngles->cd(1);
+    hPhi->Fit("pol0");
+    hPhi->Draw();
 
-  cAngles->cd(2);
-  hTheta->Fit("pol0");
-  hTheta->Draw();
+    cAngles->cd(2);
+    hTheta->Fit("pol0");
+    hTheta->Draw();
+  }
 
   TCanvas *cPE = new TCanvas("cPE", "Momentum & Energy", 300, 100, 1100, 700);
-  cPE->Divide(1, 3);
 
-  gStyle->SetOptStat(112210);
-  gStyle->SetOptFit(111);
+  {
+    cPE->Divide(1, 3);
 
-  cPE->cd(1);
-  hP->Fit("expo");
-  hP->Draw();
+    cPE->cd(1);
+    hP->Fit("expo");
+    hP->Draw();
 
-  cPE->cd(2);
-  hPtr->Draw();
+    cPE->cd(2);
+    hPtr->Draw();
 
-  cPE->cd(3);
-  hE->Draw();
+    cPE->cd(3);
+    hE->Draw();
+  }
 }
