@@ -42,7 +42,7 @@ public:
 
   double Energy();
 
-  void Decay2body(Particle &dau1, Particle &dau2);
+  int Decay2body(Particle &dau1, Particle &dau2);
 
   ParticleType* getParticleType();
 };
