@@ -64,10 +64,8 @@ int main() {
         hPT->Fill(1);
         pion->setCharge(charge);
         Particle pi{pion, "pion", pi_linearMomentum};
-        pi.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi),
-                p_ * cos(theta));
-        hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) +
-                        pow(p_ * sin(theta) * sin(phi), 2)));
+        pi.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
         hE->Fill(pi.Energy());
         particle_v.push_back(pi);
       }
@@ -76,10 +74,8 @@ int main() {
         hPT->Fill(2);
         kaon->setCharge(charge);
         Particle ka{kaon, "kaon", ka_linearMomentum};
-        ka.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi),
-                p_ * cos(theta));
-        hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) +
-                        pow(p_ * sin(theta) * sin(phi), 2)));
+        ka.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
         hE->Fill(ka.Energy());
         particle_v.push_back(ka);
       }
@@ -88,10 +84,8 @@ int main() {
         hPT->Fill(3);
         proton->setCharge(charge);
         Particle pr{proton, "proton", pr_linearMomentum};
-        pr.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi),
-                p_ * cos(theta));
-        hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) +
-                        pow(p_ * sin(theta) * sin(phi), 2)));
+        pr.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
         hE->Fill(pr.Energy());
         particle_v.push_back(pr);
       }
@@ -99,10 +93,8 @@ int main() {
       else {
         hPT->Fill(4);
         Particle ks{K_s, "K*", ka_linearMomentum};
-        ks.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi),
-                p_ * cos(theta));
-        hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) +
-                        pow(p_ * sin(theta) * sin(phi), 2)));
+        ks.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
         hE->Fill(ks.Energy());
         particle_v.push_back(ks);
       }
