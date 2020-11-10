@@ -29,6 +29,7 @@ int main() {
   TH1F* hP = new TH1F("hP", "Momentum Distribution", 1000, 0, 7);
   TH1F* hPtr = new TH1F("hPtr", "Trasversal Momentum Distribution", 1000, 0, 5);
   TH1F* hE = new TH1F("hE", "Energy Distribution", 1000, 0, 6);
+  TH1F *hPT = new TH1F("hPT", "Particle Types Distribution", 4, 0, 5);
 
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -55,6 +56,7 @@ int main() {
       P ks_linearMomentum;
 
       if (prob_type <= 80) {
+        hPT->Fill(1);
         pion->setCharge(charge);
         Particle pi{pion, "pion", pi_linearMomentum};
         pi.setP(p_ * std::sin(theta) * std::cos(phi),
@@ -67,6 +69,7 @@ int main() {
       }
 
       else if (prob_type > 80 && prob_type <= 90) {
+        hPT->Fill(2);
         kaon->setCharge(charge);
         Particle ka{kaon, "kaon", ka_linearMomentum};
         ka.setP(p_ * std::sin(theta) * std::cos(phi),
@@ -79,6 +82,7 @@ int main() {
       }
 
       else if (prob_type > 90 && prob_type <= 99) {
+        hPT->Fill(3);
         proton->setCharge(charge);
         Particle pr{proton, "proton", pr_linearMomentum};
         pr.setP(p_ * std::sin(theta) * std::cos(phi),
@@ -91,6 +95,7 @@ int main() {
       }
 
       else {
+        hPT->Fill(4);
         Particle ks{K_s, "K*", ka_linearMomentum};
         ks.setP(p_ * std::sin(theta) * std::cos(phi),
                 p_ * std::sin(theta) * std::sin(phi), p_ * std::cos(theta));
@@ -115,18 +120,6 @@ int main() {
   TCanvas *cPT =
       new TCanvas("cPT", "Particle Types Distribution", 100, 100, 1100, 700);
 
-  TH1F *hPT = new TH1F("hPT", "Particle Types Distribution", 4, 0, 5);
-  for (int i = 0; i != static_cast<int>(particle_v.size()); ++i) {
-    if (particle_v[i].getParticleType()->getName() == "pion") {
-      hPT->Fill(1);
-    } else if (particle_v[i].getParticleType()->getName() == "kaon") {
-      hPT->Fill(2);
-    } else if (particle_v[i].getParticleType()->getName() == "proton") {
-      hPT->Fill(3);
-    } else {
-      hPT->Fill(4);
-    }
-  }
   hPT->Draw();
 
   TCanvas *cAngles =
