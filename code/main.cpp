@@ -121,7 +121,7 @@ int main() {
   TCanvas *cPT =
       new TCanvas("cPT", "Particle Types Distribution", 100, 100, 1100, 700);
 
-  { hPT->Draw(); }
+  hPT->Draw();
 
   TCanvas *cAngles =
       new TCanvas("cAngles", "Angles Distribution", 200, 100, 1100, 700);
