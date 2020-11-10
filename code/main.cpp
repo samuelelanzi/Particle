@@ -25,6 +25,7 @@ int main() {
   ResonanceType* K_resonance = new ResonanceType{*K_s, 0.050};
 
   vector<Particle> particle_v{};
+  particle_v.reserve(1e7);
 
   gStyle->SetOptStat(112210);
   gStyle->SetOptFit(111);
@@ -51,8 +52,10 @@ int main() {
 
       double phi = gRandom->Uniform(0., 2 * M_PI);
       hPhi->Fill(phi);
+
       double theta = gRandom->Uniform(0., M_PI);
       hTheta->Fill(theta);
+
       double p_ = gRandom->Exp(1);
       hP->Fill(p_);
 
