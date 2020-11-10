@@ -1,6 +1,6 @@
 #include "invMass.hpp"
 
-double invMass(Particle p1, Particle p2) {
+double invMass(Particle& p1, Particle& p2) {
 	double E1 = p1.Energy();
     double E2 = p2.Energy();
 
