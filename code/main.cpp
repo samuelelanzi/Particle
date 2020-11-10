@@ -18,23 +18,23 @@
 int main() {
   using namespace std;
 
-  ParticleType *pion = new ParticleType{"pion", 0.13957, 0}; // 0 is default
-  ParticleType *kaon = new ParticleType{"kaon", 0.49367, 0};
-  ParticleType *proton = new ParticleType{"proton", 0.93827, 0};
-  ParticleType *K_s = new ParticleType{"K*", 0.89166, 0};
-  ResonanceType *K_resonance = new ResonanceType{*K_s, 0.050};
+  ParticleType* pion = new ParticleType{"pion", 0.13957, 0}; // 0 is default
+  ParticleType* kaon = new ParticleType{"kaon", 0.49367, 0};
+  ParticleType* proton = new ParticleType{"proton", 0.93827, 0};
+  ParticleType* K_s = new ParticleType{"K*", 0.89166, 0};
+  ResonanceType* K_resonance = new ResonanceType{*K_s, 0.050};
 
   vector<Particle> particle_v{};
 
   gStyle->SetOptStat(112210);
   gStyle->SetOptFit(111);
 
-  TH1F *hPhi = new TH1F("hPhi", "Phi Distribution", 100, 0., 2 * M_PI);
-  TH1F *hTheta = new TH1F("hTheta", "Theta Distribution", 100, 0., M_PI);
-  TH1F *hP = new TH1F("hP", "Momentum Distribution", 1000, 0, 7);
-  TH1F *hPtr = new TH1F("hPtr", "Trasversal Momentum Distribution", 1000, 0, 5);
-  TH1F *hE = new TH1F("hE", "Energy Distribution", 1000, 0, 6);
-  TH1F *hPT = new TH1F("hPT", "Particle Types Distribution", 4, 0, 5);
+  TH1F* hPhi = new TH1F("hPhi", "Phi Distribution", 100, 0., 2 * M_PI);
+  TH1F* hTheta = new TH1F("hTheta", "Theta Distribution", 100, 0., M_PI);
+  TH1F* hP = new TH1F("hP", "Momentum Distribution", 1000, 0, 7);
+  TH1F* hPtr = new TH1F("hPtr", "Trasversal Momentum Distribution", 1000, 0, 5);
+  TH1F* hE = new TH1F("hE", "Energy Distribution", 1000, 0, 6);
+  TH1F* hPT = new TH1F("hPT", "Particle Types Distribution", 4, 0, 5);
 
   random_device rd;
   mt19937 gen(rd());
@@ -110,12 +110,12 @@ int main() {
     }
   }
 
-  TCanvas *cPT =
+  TCanvas* cPT =
       new TCanvas("cPT", "Particle Types Distribution", 100, 100, 1100, 700);
 
   hPT->Draw();
 
-  TCanvas *cAngles =
+  TCanvas* cAngles =
       new TCanvas("cAngles", "Angles Distribution", 200, 100, 1100, 700);
 
   {
@@ -130,7 +130,7 @@ int main() {
     hTheta->Draw();
   }
 
-  TCanvas *cPE = new TCanvas("cPE", "Momentum & Energy", 300, 100, 1100, 700);
+  TCanvas* cPE = new TCanvas("cPE", "Momentum & Energy", 300, 100, 1100, 700);
 
   {
     cPE->Divide(1, 3);
