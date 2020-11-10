@@ -1,2 +1,8 @@
-# Particle
-How to generate 1e7 x 1e2 particles?
+# Particleo
+## Compilazione del progetto
+```
+cd code
+source runROOT.sh
+root [0] .L main.cpp
+root [1] main()
+```
