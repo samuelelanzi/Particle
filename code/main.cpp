@@ -35,6 +35,7 @@ int main() {
   TH1F* hPtr = new TH1F("hPtr", "Trasversal Momentum Distribution", 1000, 0, 5);
   TH1F* hE = new TH1F("hE", "Energy Distribution", 1000, 0, 6);
   TH1F* hPT = new TH1F("hPT", "Particle Types Distribution", 4, 0, 5);
+  TH1F* hMass = new TH1F("hMass", "Mass Invariant Distribution", 100, 0, 100);
 
   random_device rd;
   mt19937 gen(rd());
@@ -98,15 +99,6 @@ int main() {
         hE->Fill(ks.Energy());
         particle_v.push_back(ks);
       }
-    }
-  }
-
-  for (auto i : particle_v) {
-    if (i.getParticleType()->getName() == "K*") {
-      // i.Decay2body(pi_d, ka_d);
-      // particle_v.push_back(pi_d);
-      // particle_v.push_back(ka_d);
-      std::cout << "Found" << '\n';
     }
   }
 
