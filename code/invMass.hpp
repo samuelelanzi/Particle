@@ -3,6 +3,6 @@
 
 #include "Particle.hpp"
 
-double invMass(Particle p1, Particle p2);
+double invMass(Particle& p1, Particle& p2);
 
 #endif
