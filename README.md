@@ -1,4 +1,4 @@
-# Particleo
+# Particle
 ## Compilazione del progetto
 ```
 cd code
