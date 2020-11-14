@@ -3,7 +3,6 @@
 #include "ParticleType.hpp"
 #include "ResonanceType.hpp"
 #include "invMass.hpp"
-#include "rndmCharge.hpp"
 
 // ROOT's header file
 #include "TCanvas.h"
@@ -18,9 +17,15 @@
 int main() {
   using namespace std;
 
-  ParticleType* pion = new ParticleType{"pion", 0.13957, 0}; // 0 is default
-  ParticleType* kaon = new ParticleType{"kaon", 0.49367, 0};
-  ParticleType* proton = new ParticleType{"proton", 0.93827, 0};
+  ParticleType* pion = new ParticleType{"pion+", 0.13957, 1};
+  ParticleType* pion_ = new ParticleType{"pion-", 0.13957, -1};
+
+  ParticleType* kaon = new ParticleType{"kaon+", 0.49367, 1};
+  ParticleType* kaon_ = new ParticleType{"kaon-", 0.49367, -1};
+
+  ParticleType* proton = new ParticleType{"proton+", 0.93827, 1};
+  ParticleType* proton_ = new ParticleType{"proton-", 0.93827, -1};
+
   ParticleType* K_s = new ParticleType{"K*", 0.89166, 0};
   ResonanceType* K_resonance = new ResonanceType{*K_s, 0.050};
 
@@ -35,20 +40,18 @@ int main() {
   TH1F* hP = new TH1F("hP", "Momentum Distribution", 1000, 0, 7);
   TH1F* hPtr = new TH1F("hPtr", "Trasversal Momentum Distribution", 1000, 0, 5);
   TH1F* hE = new TH1F("hE", "Energy Distribution", 1000, 0, 6);
-  TH1F* hPT = new TH1F("hPT", "Particle Types Distribution", 4, 0, 5);
+  TH1F* hPT = new TH1F("hPT", "Particle Types Distribution", 7, 0, 8);
   TH1F* hMass = new TH1F("hMass", "Mass Invariant Distribution", 100, 0, 100);
 
   random_device rd;
   mt19937 gen(rd());
-  uniform_int_distribution<> distrib(1, 100);
-  int seed = distrib(gen);
+  uniform_real_distribution<> distrib(0, 1);
 
-  gRandom->SetSeed(seed);
+  gRandom->SetSeed();
 
   for (int i = 0; i != 1e5; ++i) {
     for (int j = 0; j != 1e2; ++j) {
-      int prob_type = distrib(gen);
-      int charge = rndmCharge(prob_type);
+      double prob_type = distrib(gen);
 
       double phi = gRandom->Uniform(0., 2 * M_PI);
       hPhi->Fill(phi);
@@ -59,44 +62,65 @@ int main() {
       double p_ = gRandom->Exp(1);
       hP->Fill(p_);
 
-      P pi_linearMomentum;
-      P ka_linearMomentum;
-      P pr_linearMomentum;
-      P ks_linearMomentum;
+      P linearMomentum;
 
-      if (prob_type <= 80) {
+      if (prob_type <= 0.4) {
         hPT->Fill(1);
-        pion->setCharge(charge);
-        Particle pi{pion, "pion", pi_linearMomentum};
+        Particle pi{pion, "pion+", linearMomentum};
         pi.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
         hE->Fill(pi.Energy());
         particle_v.push_back(pi);
       }
 
-      else if (prob_type > 80 && prob_type <= 90) {
+      else if (prob_type > 0.4 && prob_type <= 0.8) {
         hPT->Fill(2);
-        kaon->setCharge(charge);
-        Particle ka{kaon, "kaon", ka_linearMomentum};
+        Particle pi_{pion_, "pion-", linearMomentum};
+        pi_.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
+        hE->Fill(pi_.Energy());
+        particle_v.push_back(pi_);
+      }
+
+      else if (prob_type > 0.8 && prob_type <= 0.85) {
+        hPT->Fill(3);
+        Particle ka{kaon, "kaon+", linearMomentum};
         ka.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
         hE->Fill(ka.Energy());
         particle_v.push_back(ka);
       }
 
-      else if (prob_type > 90 && prob_type <= 99) {
-        hPT->Fill(3);
-        proton->setCharge(charge);
-        Particle pr{proton, "proton", pr_linearMomentum};
+      else if (prob_type > 0.85 && prob_type <= 0.90) {
+        hPT->Fill(4);
+        Particle ka_{kaon_, "kaon-", linearMomentum};
+        ka_.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
+        hE->Fill(ka_.Energy());
+        particle_v.push_back(ka_);
+      }
+
+      else if (prob_type > 0.9 && prob_type <= 0.945) {
+        hPT->Fill(5);
+        Particle pr{proton, "proton+", linearMomentum};
         pr.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
         hE->Fill(pr.Energy());
         particle_v.push_back(pr);
       }
 
+      else if (prob_type > 0.945 && prob_type <= 0.99) {
+        hPT->Fill(6);
+        Particle pr_{proton_, "proton-", linearMomentum};
+        pr_.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
+        hE->Fill(pr_.Energy());
+        particle_v.push_back(pr_);
+      }
+
       else {
-        hPT->Fill(4);
-        Particle ks{K_s, "K*", ka_linearMomentum};
+        hPT->Fill(7);
+        Particle ks{K_s, "K*", linearMomentum};
         ks.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
         hE->Fill(ks.Energy());
