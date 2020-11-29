@@ -67,6 +67,7 @@ int main() {
       if (prob_type <= 0.4) {
         hPT->Fill(1);
         Particle pi{pion, "pion+", linearMomentum};
+        pi.setIParticle(particle_v.size());
         pi.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
         hE->Fill(pi.Energy());
@@ -76,6 +77,7 @@ int main() {
       else if (prob_type > 0.4 && prob_type <= 0.8) {
         hPT->Fill(2);
         Particle pi_{pion_, "pion-", linearMomentum};
+        pi_.setIParticle(particle_v.size());
         pi_.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
         hE->Fill(pi_.Energy());
@@ -85,6 +87,7 @@ int main() {
       else if (prob_type > 0.8 && prob_type <= 0.85) {
         hPT->Fill(3);
         Particle ka{kaon, "kaon+", linearMomentum};
+        ka.setIParticle(particle_v.size());
         ka.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
         hE->Fill(ka.Energy());
@@ -94,6 +97,7 @@ int main() {
       else if (prob_type > 0.85 && prob_type <= 0.90) {
         hPT->Fill(4);
         Particle ka_{kaon_, "kaon-", linearMomentum};
+        ka_.setIParticle(particle_v.size());
         ka_.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
         hE->Fill(ka_.Energy());
@@ -103,6 +107,7 @@ int main() {
       else if (prob_type > 0.9 && prob_type <= 0.945) {
         hPT->Fill(5);
         Particle pr{proton, "proton+", linearMomentum};
+        pr.setIParticle(particle_v.size());
         pr.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
         hE->Fill(pr.Energy());
@@ -112,6 +117,7 @@ int main() {
       else if (prob_type > 0.945 && prob_type <= 0.99) {
         hPT->Fill(6);
         Particle pr_{proton_, "proton-", linearMomentum};
+        pr_.setIParticle(particle_v.size());
         pr_.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
         hE->Fill(pr_.Energy());
@@ -121,6 +127,7 @@ int main() {
       else {
         hPT->Fill(7);
         Particle ks{K_s, "K*", linearMomentum};
+        ks.setIParticle(particle_v.size());
         ks.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
         hE->Fill(ks.Energy());
