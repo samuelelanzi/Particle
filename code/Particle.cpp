@@ -13,10 +13,6 @@ ParticleType* Particle::FindParticle(std::vector<ParticleType*> &particle_v) {
 Particle::Particle(ParticleType* particleT, std::string name, P p)
     : fName{name}, fP{p} {
       
-  for (int i = 0; i != static_cast<int>(fParticleType.size()); ++i) {
-    fIParticle = i;
-  }
-
   fParticleType.push_back(particleT);
 
   /* ParticleType* result = FindParticle(particle_v);
@@ -46,6 +42,10 @@ void Particle::setP(double const &px, double const &py, double const &pz) {
   fP.fPx = px;
   fP.fPy = py;
   fP.fPz = pz;
+}
+
+void Particle::setIParticle(int const& ip) {
+  fIParticle = ip;
 }
 
 int Particle::getIParticle() { return fIParticle; }
