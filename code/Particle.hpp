@@ -20,7 +20,7 @@ private:
   std::string fName;
   P fP;
   int fNParticleType = fParticleType.size();
-  int fIParticle;
+  int fIParticle = 0;
   ParticleType* FindParticle(std::vector<ParticleType*> &particle_v);
   void Boost(double bx, double by, double bz);
 
@@ -32,6 +32,8 @@ public:
   P getP();
 
   void setP(double const &px, double const &py, double const &pz);
+
+  void setIParticle(int const& ip);
 
   double getParticleMass();
 
