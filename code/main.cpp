@@ -2,55 +2,62 @@
 #include "Particle.hpp"
 #include "ParticleType.hpp"
 #include "ResonanceType.hpp"
-#include "invMass.hpp"
 
 // ROOT's header file
 #include "TCanvas.h"
+#include "TFile.h"
 #include "TH1.h"
 #include "TH1F.h"
 #include "TRandom.h"
 #include "TStyle.h"
 
-// STL c++
-#include <random>
-
 int main() {
   using namespace std;
 
-  ParticleType* pion = new ParticleType{"pion+", 0.13957, 1};
-  ParticleType* pion_ = new ParticleType{"pion-", 0.13957, -1};
+  Particle::AddParticle("pion+", 0.13957, 1, 0.);
+  Particle::AddParticle("pion-", 0.13957, -1, 0.);
 
-  ParticleType* kaon = new ParticleType{"kaon+", 0.49367, 1};
-  ParticleType* kaon_ = new ParticleType{"kaon-", 0.49367, -1};
+  Particle::AddParticle("kaon+", 0.49367, 1, 0.);
+  Particle::AddParticle("kaon-", 0.49367, -1, 0.);
 
-  ParticleType* proton = new ParticleType{"proton+", 0.93827, 1};
-  ParticleType* proton_ = new ParticleType{"proton-", 0.93827, -1};
+  Particle::AddParticle("proton+", 0.93827, 1, 0.);
+  Particle::AddParticle("proton-", 0.93827, -1, 0.);
 
-  ParticleType* K_s = new ParticleType{"K*", 0.89166, 0};
-  ResonanceType* K_resonance = new ResonanceType{*K_s, 0.050};
+  Particle::AddParticle("K*", 0.89166, 0, 0.050);
 
   vector<Particle> particle_v{};
-  particle_v.reserve(1e7);
 
   gStyle->SetOptStat(112210);
   gStyle->SetOptFit(111);
 
+  TH1F* hPt = new TH1F("hPT", "Particle Types Distribution", 7, 0, 7);
   TH1F* hPhi = new TH1F("hPhi", "Phi Distribution", 100, 0., 2 * M_PI);
   TH1F* hTheta = new TH1F("hTheta", "Theta Distribution", 100, 0., M_PI);
-  TH1F* hP = new TH1F("hP", "Momentum Distribution", 1000, 0, 7);
-  TH1F* hPtr = new TH1F("hPtr", "Trasversal Momentum Distribution", 1000, 0, 5);
-  TH1F* hE = new TH1F("hE", "Energy Distribution", 1000, 0, 6);
-  TH1F* hPT = new TH1F("hPT", "Particle Types Distribution", 7, 0, 8);
-  TH1F* hMass = new TH1F("hMass", "Mass Invariant Distribution", 100, 0, 100);
+
+  TH1F* hP = new TH1F("hP", "Momentum Distribution", 80, 0, 7);
+  TH1F* hPtr = new TH1F("hPtr", "Trasversal Momentum Distribution", 80, 0, 5);
+  TH1F* hE = new TH1F("hE", "Energy Distribution", 80, 0, 6);
+  TH1F* hMass = new TH1F("hMass", "Mass Invariant Distribution", 320, 0, 4);
+
+  TH1F* hMass_dc = new TH1F("hMass_dc", "Mass Invariant Distribution with Discordant Charges", 320, 0, 4);
+  TH1F* hMass_sc = new TH1F("hMass_sc", "Mass Invariant Distribution with Same Charges", 320, 0, 4);
+  TH1F* hMass_pkD = new TH1F("hMass_pkD", "Mass Invariant Distribution Pion+/Kaon- Pion-/Kaon+", 160, 0, 2);
+  TH1F* hMass_pkC = new TH1F("hMass_pkC", "Mass Invariant Distribution Pion+/Kaon+ Pion-/Kaon-", 160, 0, 2);
+
+  TH1F* hMass_pkDecay = new TH1F("hMass_pkDecay", "Mass Invariant Distribution Decay K* in Pion+/Kaon- Pion-/Kaon+", 320, 0, 4);
+  TH1F* pkD_pkC = new TH1F("pkD_pkC", "Difference between Pion+/Kaon- Pion-/Kaon+ Minus Pion+/Kaon+ Pion-/Kaon-", 160, 0, 2);
+  TH1F* dc_sc = new TH1F("dc_sc", "Difference between Discordant Charges and Same Charges", 320, 0, 4);
 
   random_device rd;
   mt19937 gen(rd());
   uniform_real_distribution<> distrib(0, 1);
+  uniform_int_distribution<> int_distrib(0, 1);
 
   gRandom->SetSeed();
 
-  for (int i = 0; i != 1e5; ++i) {
-    for (int j = 0; j != 1e2; ++j) {
+  for(int i = 0; i != 1e5; ++i) {
+    for(int j = 0; j != 1e2; ++j) {
+      int prob_type_decay = int_distrib(gen);
       double prob_type = distrib(gen);
 
       double phi = gRandom->Uniform(0., 2 * M_PI);
@@ -64,111 +71,207 @@ int main() {
 
       P linearMomentum;
 
-      if (prob_type <= 0.4) {
-        hPT->Fill(1);
-        Particle pi{pion, "pion+", linearMomentum};
-        pi.setIParticle(particle_v.size());
-        pi.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+      if(prob_type <= 0.4) {
+        Particle pion {"pion+", linearMomentum};
+        pion.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        particle_v.push_back(pion);
+        hPt->Fill(pion.getIParticle());
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
-        hE->Fill(pi.Energy());
-        particle_v.push_back(pi);
+        hE->Fill(pion.Energy());
       }
 
-      else if (prob_type > 0.4 && prob_type <= 0.8) {
-        hPT->Fill(2);
-        Particle pi_{pion_, "pion-", linearMomentum};
-        pi_.setIParticle(particle_v.size());
-        pi_.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+      else if(prob_type > 0.4 && prob_type <= 0.8) {
+        Particle pion_ {"pion-", linearMomentum};
+        pion_.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        particle_v.push_back(pion_);
+        hPt->Fill(pion_.getIParticle());
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
-        hE->Fill(pi_.Energy());
-        particle_v.push_back(pi_);
+        hE->Fill(pion_.Energy());
       }
 
       else if (prob_type > 0.8 && prob_type <= 0.85) {
-        hPT->Fill(3);
-        Particle ka{kaon, "kaon+", linearMomentum};
-        ka.setIParticle(particle_v.size());
-        ka.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        Particle kaon{"kaon+", linearMomentum};
+        kaon.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        particle_v.push_back(kaon);
+        hPt->Fill(kaon.getIParticle());
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
-        hE->Fill(ka.Energy());
-        particle_v.push_back(ka);
+        hE->Fill(kaon.Energy());
       }
 
       else if (prob_type > 0.85 && prob_type <= 0.90) {
-        hPT->Fill(4);
-        Particle ka_{kaon_, "kaon-", linearMomentum};
-        ka_.setIParticle(particle_v.size());
-        ka_.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        Particle kaon_{"kaon-", linearMomentum};
+        kaon_.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        particle_v.push_back(kaon_);
+        hPt->Fill(kaon_.getIParticle());
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
-        hE->Fill(ka_.Energy());
-        particle_v.push_back(ka_);
+        hE->Fill(kaon_.Energy());
       }
 
       else if (prob_type > 0.9 && prob_type <= 0.945) {
-        hPT->Fill(5);
-        Particle pr{proton, "proton+", linearMomentum};
-        pr.setIParticle(particle_v.size());
-        pr.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        Particle proton{"proton+", linearMomentum};
+        proton.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        particle_v.push_back(proton);
+        hPt->Fill(proton.getIParticle());
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
-        hE->Fill(pr.Energy());
-        particle_v.push_back(pr);
+        hE->Fill(proton.Energy());
       }
 
       else if (prob_type > 0.945 && prob_type <= 0.99) {
-        hPT->Fill(6);
-        Particle pr_{proton_, "proton-", linearMomentum};
-        pr_.setIParticle(particle_v.size());
-        pr_.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        Particle proton_{"proton-", linearMomentum};
+        proton_.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        particle_v.push_back(proton_);
+        hPt->Fill(proton_.getIParticle());
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
-        hE->Fill(pr_.Energy());
-        particle_v.push_back(pr_);
+        hE->Fill(proton_.Energy());
       }
 
       else {
-        hPT->Fill(7);
-        Particle ks{K_s, "K*", linearMomentum};
-        ks.setIParticle(particle_v.size());
-        ks.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        Particle k_star{"K*", linearMomentum};
+        k_star.setP(p_ * sin(theta) * cos(phi), p_ * sin(theta) * sin(phi), p_ * cos(theta));
+        particle_v.push_back(k_star);
+        hPt->Fill(k_star.getIParticle());
         hPtr->Fill(sqrt(pow(p_ * sin(theta) * cos(phi), 2) + pow(p_ * sin(theta) * sin(phi), 2)));
-        hE->Fill(ks.Energy());
-        particle_v.push_back(ks);
+        hE->Fill(k_star.Energy());
+
+        if(prob_type_decay != 0) {
+          Particle pionD {"pion+", linearMomentum};
+          Particle kaonD_ {"kaon-", linearMomentum};
+          k_star.Decay2Body(pionD, kaonD_);
+          particle_v.push_back(pionD);
+          particle_v.push_back(kaonD_);
+          hMass_pkDecay->Fill(pionD.invMass(kaonD_));
+        } else {
+          Particle pionD_ {"pion-", linearMomentum};
+          Particle kaonD {"kaon+", linearMomentum};
+          k_star.Decay2Body(pionD_, kaonD);
+          particle_v.push_back(pionD_);
+          particle_v.push_back(kaonD);
+          hMass_pkDecay->Fill(pionD_.invMass(kaonD));
+        }
       }
     }
+
+    for(int i = 0; i != static_cast<int>(particle_v.size()); ++i) {
+      for(int j = i + 1; j != static_cast<int>(particle_v.size()); ++j) {
+        hMass->Fill(particle_v[i].invMass(particle_v[j]));
+
+        if(particle_v[i].getCharge() == particle_v[j].getCharge()) {
+          hMass_sc->Fill(particle_v[i].invMass(particle_v[j]));
+        } else {
+          hMass_dc->Fill(particle_v[i].invMass(particle_v[j]));
+        }
+
+        if((particle_v[i].getName() == "pion+" && particle_v[j].getName() == "kaon-") || (particle_v[i].getName() == "kaon-" && particle_v[j].getName() == "pion+")) {
+          hMass_pkD->Fill(particle_v[i].invMass(particle_v[j]));
+        } else if((particle_v[i].getName() == "pion-" && particle_v[j].getName() == "kaon+") || (particle_v[i].getName() == "kaon+" && particle_v[j].getName() == "pion-")) {
+          hMass_pkD->Fill(particle_v[i].invMass(particle_v[j]));
+        }
+
+        if((particle_v[i].getName() == "pion+" && particle_v[j].getName() == "kaon+") || (particle_v[i].getName() == "kaon+" && particle_v[j].getName() == "pion+")) {
+          hMass_pkC->Fill(particle_v[i].invMass(particle_v[j]));
+        } else if((particle_v[i].getName() == "pion-" && particle_v[j].getName() == "kaon-") || (particle_v[i].getName() == "kaon-" && particle_v[j].getName() == "pion-")) {
+          hMass_pkC->Fill(particle_v[i].invMass(particle_v[j]));
+        }
+      }
+    } 
+    particle_v.clear(); 
   }
 
-  TCanvas* cPT =
-      new TCanvas("cPT", "Particle Types Distribution", 100, 100, 1100, 700);
-
-  hPT->Draw();
-
-  TCanvas* cAngles =
-      new TCanvas("cAngles", "Angles Distribution", 200, 100, 1100, 700);
-
+  TFile* particle = new TFile("particle.root", "CREATE");
   {
-    cAngles->Divide(1, 2);
+    particle->Write();
+    hPt->Write();
+    hPhi->Write();
+    hTheta->Write();
+    hP->Write();
+    hPtr->Write();
+    hE->Write();
+    hMass->Write();
+    hMass_dc->Write();
+    hMass_sc->Write();
+    hMass_pkD->Write();
+    hMass_pkC->Write();
+    hMass_pkDecay->Write();
+    particle->Close();
+  }
 
-    cAngles->cd(1);
+  TCanvas* c1 = new TCanvas("c1", "Particle Types & Angles Distribution", 100, 100, 1100, 700);
+  {
+    c1->Divide(1, 2);
+
+    c1->cd(1);
+    hPt->Draw("E");
+    hPt->Draw("SAME");
+
+    auto c1_2 = c1->cd(2);
+    c1_2->Divide(2, 1);
+
+    c1_2->cd(1);
     hPhi->Fit("pol0");
-    hPhi->Draw();
+    hPhi->Draw("E");
+    hPhi->Draw("SAME");
 
-    cAngles->cd(2);
+    c1_2->cd(2);
     hTheta->Fit("pol0");
-    hTheta->Draw();
+    hTheta->Draw("E");
+    hTheta->Draw("SAME");
   }
 
-  TCanvas* cPE = new TCanvas("cPE", "Momentum & Energy", 300, 100, 1100, 700);
-
+  TCanvas* c2 = new TCanvas("c2", "Momentum, Energy and Mass Invariant", 200, 100, 1100, 700);
   {
-    cPE->Divide(1, 3);
+    c2->Divide(2, 2);
 
-    cPE->cd(1);
+    c2->cd(1);
     hP->Fit("expo");
-    hP->Draw();
+    hP->Draw("E");
+    hP->Draw("SAME");
 
-    cPE->cd(2);
-    hPtr->Draw();
+    c2->cd(2);
+    hPtr->Draw("E");
+    hPtr->Draw("SAME");
 
-    cPE->cd(3);
-    hE->Draw();
+    c2->cd(3);
+    hE->Draw("E");
+    hE->Draw("SAME");
+
+    c2->cd(4);
+    hMass->Draw();
+  }
+
+  TCanvas* c3 = new TCanvas("c3", "Mass Invariant between certain Particle Types", 300, 100, 1100, 700);
+  {
+    c3->Divide(2, 2);
+
+    c3->cd(1);
+    hMass_dc->Draw();
+
+    c3->cd(2);
+    hMass_sc->Draw();
+
+    c3->cd(3);
+    hMass_pkD->Draw();
+
+    c3->cd(4);
+    hMass_pkC->Draw();
+  }
+
+  TCanvas* c4 = new TCanvas("c4", "Mass Invariant Decay", 400, 100, 1100, 700);
+  {
+    c4->Divide(1, 3);
+
+    c4->cd(1);
+    hMass_pkDecay->Fit("gaus");
+    hMass_pkDecay->Draw();
+
+    c4->cd(2);
+    pkD_pkC->Sumw2();
+    pkD_pkC->Add(hMass_pkD, hMass_pkC, 1, -1);
+    pkD_pkC->SetEntries(pkD_pkC->Integral());
+    pkD_pkC->Fit("gaus");
+    pkD_pkC->Draw("HIST, SAME");
+
+    c4->cd(3);
+    dc_sc->Add(hMass_dc, hMass_sc, 1, -1);
+    dc_sc->Draw();
   }
 }
