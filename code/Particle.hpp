@@ -7,6 +7,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <vector>
+#include <random>
 
 struct P {
   double fPx = 0;
@@ -16,37 +17,28 @@ struct P {
 
 class Particle {
 private:
-  std::vector<ParticleType*> fParticleType{};
+  static std::vector<ParticleType*> fParticleType;
   std::string fName;
+  static int fNParticleType; 
+  int fIParticle; 
   P fP;
-  int fNParticleType = fParticleType.size();
-  int fIParticle = 0;
-  ParticleType* FindParticle(std::vector<ParticleType*> &particle_v);
+  static int FindParticle(std::string name);
   void Boost(double bx, double by, double bz);
 
 public:
-  Particle(ParticleType* particleT, std::string name, P p);
-
+  Particle(std::string name, P p);
   int getIParticle();
-
+  static void AddParticle(std::string pt_name, double pt_mass, int pt_charge, double pt_width);
+  static void Print();
+  void PrintParticle();
   P getP();
-
-  void setP(double const &px, double const &py, double const &pz);
-
-  void setIParticle(int const& ip);
-
-  double getParticleMass();
-
-  void printParticle();
-
-  //ParticleType *AddParticleType(std::string const &name, double const &mass,
-  //                              int const &charge, int const &width);
-
+  std::string getName();
+  double getMass();
+  int getCharge();
   double Energy();
-
-  int Decay2body(Particle &dau1, Particle &dau2);
-
-  ParticleType* getParticleType();
+  double invMass(Particle& p);
+  void setP(double px, double py, double pz);
+  int Decay2Body(Particle& dau1, Particle& dau2);
 };
 
 #endif
