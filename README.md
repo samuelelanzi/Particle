@@ -14,3 +14,6 @@ root[4] analysis()
 ## Risultati
 
 ![c1](https://github.com/samuelelanzi/Particle/blob/master/tex/c1.pdf)
+Abbondanza di particelle, angoli azimutali/polari e impulso
+![c2](https://github.com/samuelelanzi/Particle/blob/master/tex/c2.pdf)
+Masse invarianti
