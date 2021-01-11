@@ -3,6 +3,7 @@ void setStyle() {
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(112210);
   gStyle->SetOptFit(111);
+  gStyle->SetFillColor(2);
   gStyle->SetOptTitle(0);
 }
 
@@ -79,7 +80,7 @@ void analysis() {
     hP->Draw("E");
     hP->Draw("SAME");
 
-    c1->Print("c1.gif");
+    c1->Print("c1.pdf");
   }
 
   //Second Canvas
@@ -126,6 +127,6 @@ void analysis() {
     dc_sc->Fit("gaus");
     dc_sc->Draw("HIST, SAME");
 
-    c2->Print("c2.gif");
+    c2->Print("c2.pdf");
   }
 }
