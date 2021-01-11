@@ -1,0 +1,280 @@
+\documentclass[a4paper,10 pt]{article} 
+\usepackage[french,italian]{babel} 
+\usepackage[T1]{fontenc} 
+\usepackage[utf8]{inputenc}                             
+\usepackage{graphicx}
+\usepackage[normalem]{ulem}
+\useunder{\uline}{\ul}{}
+\usepackage[a4paper, top=2cm, bottom=3cm, left=1.7cm, right=1.7cm]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{quoting}
+\usepackage{physics}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{mathdots}
+\usepackage{yhmath}
+\usepackage{cancel}
+\usepackage{color}
+\usepackage{siunitx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{amssymb}
+\usepackage{gensymb}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usetikzlibrary{fadings}
+\usetikzlibrary{patterns}
+\usetikzlibrary{shadows.blur}
+\usetikzlibrary{shapes}
+\usepackage{subfig}
+\usepackage[colorlinks]{hyperref}
+% Per creare un "blocco" codice
+\usepackage{xcolor}
+\usepackage{listings}
+
+\colorlet{mygray}{black!30}
+\colorlet{mygreen}{green!60!blue}
+\colorlet{mymauve}{red!60!blue}
+
+\lstset{
+  backgroundcolor=\color{gray!10},  
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  breakatwhitespace=false,      
+  breaklines=true,                
+  captionpos=b,                    
+  commentstyle=\color{mygreen}, 
+  extendedchars=true,              
+  frame=single,                   
+  keepspaces=true,             
+  keywordstyle=\color{blue},      
+  language=c++,                 
+  numbers=none,                
+  numbersep=5pt,                   
+  numberstyle=\tiny\color{blue}, 
+  rulecolor=\color{mygray},        
+  showspaces=false,               
+  showtabs=false,                 
+  stepnumber=5,                  
+  stringstyle=\color{mymauve},    
+  tabsize=3,                      
+  title=\lstname                
+} % fine
+
+\title{Laboratorio di Programmazione C++/ROOT:
+\
+\\
+Simulazione di un Esperimento di Fisica Nucleare} 
+\author{Lanzi Samuele}
+\date{A.A. 2020-2021}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduzone}
+Questo programma ha lo scopo di implementare un prototipo di codice utilizzabile per rappresentare 
+e analizzare il contenuto di eventi fisici simulati risultanti da collisioni di particelle elementari.
+Ognuno dei $\sim 10^5$ eventi che andiamo ad analizzare consite di $\sim 10^2$ particelle di tipi diversi, 
+con aggiunta delle risonanze; ciascun tipo possiede una certa abbondanza (una certa probabilità di essere generato).
+
+\
+\\
+Parleremo della struttura del programma scritto in C++ con l'ausilio di ROOT nella sezione 2 per poi passare alla 
+generazione degli eventi nella sezione 3, successivamente analizzeremo quanto ottenuto nella sezione 4.
+
+\section{Struttura del Codice}
+Il programma è basato su 3 classi due delle quali sfruttano il polimorfismo dinamico grazie 
+al quale una classe figlia può ereditare alcune caratteristiche della classe madre.
+\begin{itemize}
+    \item[-] {\bf ParticleType} descrittiva di alcune proprietà di base delle particelle elementari avente come 
+    attributi privati il nome \verb!fName!, la massa \verb!fMass! e la carica \verb!fCharge! della particella; 
+    come metodi abbiamo i getters per gli attributi, un metodo \verb!Print()! per stampare a schermo 
+    le proprietà della particella ed un costruttore parametrico.
+
+    \item[-] {\bf ResonanceType} descrittiva di alcune proprietà di base specifiche delle risonanze, che erdita 
+    da \verb!ParticleType! ed ha come attributo aggiuntivo privato la larghezza della risonanza \verb!fWidth! e 
+    come metodi pubblici un costruttore parametrico ed un metodo \verb!Print()! che eredita quello della classe madre ed aggiunge un attributo 
+    da stampare.
+
+    \item[-] {\bf Particle} descrittiva sia delle proprietà di base definite nella classe \verb!ParticleType! e nella
+    sua derivata che delle proprietà cinematiche (le tre componenti dell'impulso) di una particella. La classe ha come attributi
+    privati: un costruttore parametrico;
+    un \verb!static std::vector<ParticleType*> fParticleType! che contiene le informazioni dei tipi di particelle
+    che saranno generati nel \verb!main!; una varibile interna \verb!fIParticle! che rappresenta l'indice dell'
+    elemento del vettore di puntatori; le tre componenti dell'impulso raggruppate in un nuovo tipo di dato \verb!P fP! \footnote{Per ulteriori dettagli consultare l'Appendice 1}. 
+    Come metodi pubblici abbiamo i getter, un metodo statico per fare il \verb!push! di elementi nel vettore ed altri metodi per ricavare grandezze a partire
+    dall'impulso e dalla massa: \verb!Energy()! per l'energia, \verb!invMass()! per la massa invariante $\dots$
+\end{itemize} \input{grafico1.tex}
+
+Essendo \verb!ResonanceType! un tipo specializzato di \verb!ParticleType! (relazione “{\bf is a}”), la scelta è stata quella di riutilizzare il codice scritto per \verb!ParticleType! e far ereditare 
+\verb!ResonanceType! da \verb!ParticleType!. La classe \verb!Particle! è una classe ulteriormente specializzata, che contiene sia le informazioni delle proprietà di base (nome, massa, carica, eventualmente larghezza di risonanza),
+sia le proprietà cinematche (impulso 3D). In questo caso specifico la soluzione migliore per implementare \verb!Particle! è usare la composizione (aggregazione) [Figura-1]; includiamo in \verb!Particle! un membro statico che fa da tabella 
+per i tipi di particella e relative proprietà di base così da avere un grosso risparmio in memoria.
+
+\section{Generazione}
+Nella nostra simulazione sono stati generati $\sim 10^5$ eventi ciascuno da $\sim 10^2$ particelle. Le particelle generate 
+sono di sette tipi diversi: pioni ($\pi^+$, $\pi^-$), kaoni ($K^+$, $K^-$), protoni ($p^+$, $p^-$) e risonanza ($K^*$) ogni tipo 
+di particella ha caratteristiche diverse sintetizzate in [Tabella-1].
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|l|l|l|}
+    \hline
+    {\bf Tipo di Particella} & {\bf Probabilità} & {\bf Massa} ($GeV/c^2$) & {\bf Carica} & \begin{tabular}[c]{@{}l@{}}{\bf Larghezza della} \\ {\bf Risonanza} ($GeV/c^2$) \end{tabular} \\ \hline
+    $\pi^+$            & 0.4         & 0.13957           & +1     & -                                     \\ \hline
+    $\pi^-$            & 0.4         & 0.13957           & -1     & -                                     \\ \hline
+    $K^+$              & 0.05        & 0.49367           & +1     & -                                     \\ \hline
+    $K^-$              & 0.05        & 0.49367           & -1     & -                                     \\ \hline
+    $p^+$              & 0.045       & 0.93827           & +1     & -                                     \\ \hline
+    $p^-$              & 0.045       & 0.93827           & -1     & -                                     \\ \hline
+    $K^*$              & 0.01        & 0.89166           & 0      & 0.050                                 \\ \hline
+    \end{tabular}
+    \caption{Tipi di particelle e le loro caratteristiche}
+\end{table} Alcune delle $100$ particelle generate in un evento, quindi, possono essere dello stesso tipo ma ciò che le 
+contraddistingue le une dalle altre è l'impulso. Per settare le componenti dell'impulso procediamo, in prima battuta, a generarne il modulo casualmente
+tramite il metodo Monte Carlo chiamato \verb!TRandom::Exp(1)!; successivamente possiamo risalire alle
+componenti 3D (in coordinate sferiche) grazie alle seguenti:
+\[
+    \vec P = (P_x, P_y, P_z) \ \ conosciamo \ |\vec P| \equiv P
+\]
+\begin{equation}
+    P_x = P \sin \theta \cos \phi \ \ \ \theta \in [0, \pi] \ e \ \phi \in [0, 2\pi]
+\end{equation}
+\[
+ P_y = P \sin \theta \sin \phi
+\]
+\[
+    P_z = P \cos \theta
+\] Gli angoli $\theta$ (angolo polare) e $\phi$ (angolo azimutale) sono anch'essi generati casualmente attraverso il metodo di generazione Monte Carlo
+\verb!TRandom::Uniform()!.
+
+\
+\\
+Una volta generate tutte le particelle, quelle di tipo $K^*$ vengono fatte decadere in due coppie (ogni coppia ha il $50\%$ di probabilità di essere creata)
+$(\pi^+, K^-)$ oppure $(\pi^-, K^+)$; all'interno del programma il decadimento avviene attraverso il metodo \verb!Particle::Decay2Body()!.
+
+\section{Analisi}
+\subsection{Abbondanza di Particelle, Angoli ed Impulso}
+Analizziamo ora ciò che è emerso dal nostro programma iniziando dall'abbondanza di tipi di particelle 
+riportata in [Tabella-2]. Come si può vedere i valori ricavati dal programma sono del tutto compatibili 
+con i valori di aspettazione nel limite di errori statistici. In [Figura-2] è riportato l'istogramma nel 
+quale ogni bin rappresenta un tipo di particella.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|l|}
+    \hline
+    {\bf Specie}  & {\bf Occorrenze Osservate} & {\bf Occorrenze attese} \\ \hline
+    $\pi^+$ & $(3999.3 \pm 2.0) \cdot 10^3$ & $4000 \cdot 10^3$ \\ \hline
+    $\pi^-$ & $(4002.1 \pm 2.0) \cdot 10^3$ & $4000 \cdot 10^3$ \\ \hline
+    $K^+$   & $(499.50 \pm 0.71) \cdot 10^3$ & $500 \cdot 10^3$ \\ \hline
+    $K^-$   & $(498.69 \pm 0.71) \cdot 10^3$ & $500 \cdot 10^3$ \\ \hline
+    $p^+$   & $(450.17 \pm 0.67) \cdot 10^3$ & $450 \cdot 10^3$ \\ \hline
+    $p^-$   & $(450.48 \pm 0.67) \cdot 10^3$ & $450 \cdot 10^3$ \\ \hline
+    $K^*$   & $(99.74 \pm 0.32) \cdot 10^3$ & $100 \cdot 10^3$ \\ \hline
+    \end{tabular}
+    \caption{Abbondanza dei tipi di particelle}
+\end{table} 
+Procediamo con gli istogrammi degli angoli azimutali e polari, come possiamo intuire dalla [Figura-2] i due istogrammi
+seguono una distribuzione uniforme individuata dalla linea rossa; in [Tabella-3] sono riportati i valori del $\chi^2$ grazie
+ai quali possiamo concludere che effettivamente il fit è consistente con la distribuzione generata. Consideriamo ora l'istogramma che rappresenta
+il modulo dell'impuso [Figura-2] anch'esso fittato con una distribuzione, questa volta esponenziale, la quale è in perfetto accordo con quanto ci 
+aspettavamo a meno di fluttuazioni statistiche.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|l|l|l|}
+    \hline
+    {\bf Distribuzione} & {\bf Parametri del Fit} & $\chi^2$ & $\nu$ & $\chi^2/\nu$ \\ \hline
+    Fit a distribuzione angolo $\theta$ (rad) & $100000 \pm 32$ & $98.75$ & 99 & 0.99 \\ \hline
+    Fit a distribuzione angolo $\phi$ (rad) & $100000 \pm 32$ &  $99.04$ & 99 & 1.00  \\ \hline
+    Fit a distribuzione modulo impulso ($GeV/c$) & $-1 \pm 0.0$ & 60.43 & 78 &  0.78\\ \hline
+    \end{tabular}
+    \caption{Distribuzioni dell'angolo azimutale, polare e dell'impulso}
+\end{table}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.25]{c1.pdf}
+    \caption{In alto a sinistra è rappresentato l'istogramma dell'abbondanza di particelle i cui valori
+    precisi sono riportati in Tabella 1; in alto a destra e in basso a sinistra sono riportati gli 
+    istogrammi dell'angolo azimutale e dell'angolo polare (fittati opportunamente con una distribuzione uniforme); in basso a destra è riportato l'istogramma
+    dell'impulso (fittato con un esponenziale).}
+\end{figure}
+
+\subsection{Massa Invariante}
+Passiamo ora agli istogrammi delle masse invarianti. Come avevamo accennato attraverso un metodo specifico le
+particelle di tipo $K^*$ vengono fatte decadere in $(\pi^+, K^-)$ oppure $(\pi^-, K^+)$, se misuriamo le 
+masse invarianti (attraverso il metodo \verb!invMass()!) tra tutte le particelle prodotte da questo decadimento 
+in tutti gli eventi otteniamo il primo istogramma (di controllo) della [Figura-3] il quale è stato opportunamente fittato con una
+gaussiana (le specifiche sono riportate in [Tabella-4]). 
+
+\ 
+\\
+Per ricavare il secondo istogramma si può procedere in due step:
+\begin{itemize}
+    \item[-] Selezionando tra tutte quelle generate in un singolo evento le coppie di particelle
+    del tipo $(\pi^+, K^-)$ e $(\pi^-, K^+)$, ricavandone a due a due la massa invariante e facendone un primo
+    istogramma (1); ripetendo lo stesso procedimento per $(\pi^+, K^+)$ e $(\pi^-, K^-)$ si ottiene un secondo 
+    istogramma (2);
+    \item[-] Facendo ora la differenza tra i due istogrammi ottenuti (2) - (1) otteniamo il nostro risultato 
+    riportato in [Figura-3]; fittandolo opportunamente con una gaussiana è inconfutabile la somiglianza con la distribuzione 
+    ricavata in precedenza.
+\end{itemize}
+
+\ 
+\\ 
+Per ottenere il terzo istogramma il procedimento è molto simile a quello precedente con l'unica differenza che
+invece di considerare le sole $\pi K$ con segni discordi e concordi si considerano le masse invarianti tra coppie di
+particelle di qualsiasi tipo aventi comunque cariche di segno concorde e discorde. 
+
+\ 
+\\
+Analizzando i risultati [Tabella-4] possiamo concludere che a meno di errori statistici ciò che abbiamo ottenuto è
+consistente con quanto ipotizzato, ne sono un riprova i valori congrui del $\chi^2$. 
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|l|l|l|}
+    \hline
+    {\bf Distribuzione}                                                                                                                                & {\bf Media} (GeV/$c^2$) & {\bf Sigma} (GeV/$c^2$)& {\bf Ampiezza} & $\chi^2/\nu$ \\ \hline
+    Massa Invariante vere $K^*$                                                                                                                    & $0.8914 \pm 0.0002$ & $0.05003 \pm 0.00011$ & $10020 \pm 39$ & $0.77$ \\ \hline
+    \begin{tabular}[c]{@{}l@{}}Massa Invariante ottenuta da \\ differenza delle combinazioni \\ $\pi K$ di carica discorde e concorde\end{tabular} & $0.891 \pm 0.003$ & $0.050 \pm 0.003$ & $10580 \pm 490$&  $1.04$\\ \hline
+    \begin{tabular}[c]{@{}l@{}}Massa Invariante ottenuta da \\ differenza delle combinazioni \\ di carica discorde e concorde\end{tabular}  & $0.895 \pm 0.005$ & $0.049 \pm 0.005$ & $9666 \pm 820$ & $1.05$\\ \hline
+    \end{tabular}
+    \caption{Masse invarianti di particelle opportunamente raggruppate}
+\end{table}
+
+\begin{figure}[!]
+    \centering
+    \includegraphics[scale=0.25]{c2.pdf}
+    \caption{Il primo grafico dall'alto rappresenta l'istogramma delle masse invarianti delle $K^*$ vere, prodotte dal decadimento fittato con un'opportuna gaussiana;
+    il secondo istogramma rappresenta la massa invariante ottenuta dalla differenza fra combinazioni $\pi$K di carica discorde e concorde anch'esso fittato con una gaussiana;
+    il terzo istogramma rappresenta la massa invariante fra particella in combinazioni di carica discorde e concorde (fittato con un'opportuna gaussiana).}
+\end{figure}
+
+\section*{Appendice 1}
+\subsection*{ParticleType.hpp}
+\input{ParticleTypeHPP.tex}
+
+\subsection*{ParticleType.cpp}
+\input{ParticleTypeCPP.tex}
+
+\subsection*{ResonanceType.hpp}
+\input{ResonanceTypeHPP.tex}
+
+\subsection*{ResonanceType.cpp}
+\input{ResonanceTypeCPP.tex}
+
+\subsection*{Particle.hpp}
+\input{ParticleHPP.tex}
+
+\subsection*{Particle.cpp}
+\input{ParticleCPP.tex}
+
+\subsection*{main.cpp}
+\input{main.tex}
+
+\subsection*{analysis.C}
+\input{analysis.tex}
+\end{document}
