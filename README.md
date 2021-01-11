@@ -12,3 +12,5 @@ root[3] setStyle()
 root[4] analysis()
 ```
 ## Risultati
+
+![c1](https://github.com/samuelelanzi/Particle/blob/master/tex/c1.pdf)
