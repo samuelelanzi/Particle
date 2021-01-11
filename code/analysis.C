@@ -3,7 +3,6 @@ void setStyle() {
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(112210);
   gStyle->SetOptFit(111);
-  gStyle->SetFillColor(2);
   gStyle->SetOptTitle(0);
 }
 
